@@ -51,7 +51,7 @@ const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
     e.preventDefault();
     setIsLoading(true);
 
-    if (!name || description) {
+    if (!name || !description) {
       toast({ title: "Error", description: "All Fields Are Required." })
       return;
     }

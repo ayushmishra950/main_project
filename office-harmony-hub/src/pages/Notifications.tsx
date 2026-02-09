@@ -135,7 +135,7 @@
 
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bell,
   FolderKanban,
@@ -176,7 +176,7 @@ const Notifications: React.FC = () => {
            const res = await getNotificationData(user?._id, user?.companyId?._id || user?.createdBy?._id);
            console.log(res);
            if(res.status===200){
-            setNotificationList(res.data)
+            setNotificationList(res?.data?.notification)
            }
       }
       catch(error){
@@ -188,6 +188,9 @@ const Notifications: React.FC = () => {
       }
   }
 
+   useEffect(()=>{
+    handleGetNotificationData();
+   }, [])
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -228,16 +231,16 @@ const Notifications: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-1">
-            {notifications.length === 0 && (
+            {notificationList?.length === 0 && (
               <div className="text-center py-12">
                 <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No notifications yet.</p>
               </div>
             )}
 
-            {notifications.map((notification) => (
+            {notificationList?.map((notification) => (
               <div
-                key={notification._id}
+                key={notification?._id}
                 className={cn(
                   "flex gap-4 p-4 rounded-lg transition-colors cursor-pointer",
                   !notification.read

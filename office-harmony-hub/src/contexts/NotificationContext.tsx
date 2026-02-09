@@ -33,8 +33,9 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
     // Listen for notifications
     socketClient.on("newNotification", (notification: Notification) => {
+      console.log(notification)
       if (notification.userId === user._id) {
-        toast({ title: notification.message });
+        toast({ title: notification.message, className:"bg-yellow-600" });
         setNotifications((prev) => [notification, ...prev]);
       }
     });

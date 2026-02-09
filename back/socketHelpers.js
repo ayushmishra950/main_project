@@ -35,9 +35,11 @@ function initSocket(server) {
  * @param {string} type - "task" | "subtask" | "leave" | "general"
  * @param {string|null} referenceId - Related Task/Leave/Subtask ID
  */
-async function sendNotification(createdBy,userId, userModel, companyId, message, type = "general", referenceId = null) {
-  if (!io) return console.error("Socket.io not initialized");
 
+
+async function sendNotification({createdBy,userId, userModel, companyId, message, type = "general", referenceId = null}) {
+  if (!io) return console.error("Socket.io not initialized");
+   
   try {
     // 1️⃣ Save in MongoDB
    const notificationDoc = await Notification.create({

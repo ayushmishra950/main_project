@@ -3,6 +3,9 @@ const Attendance = require("../models/attendanceModel");
 const mongoose = require("mongoose");
 const PayRoll = require("../models/payRollModel");
 const Company = require("../models/companyModel"); // ✅ new
+const {sendNotification } = require("../socketHelpers");
+const { Employee } = require("../models/employeeModel");
+const recentActivity = require("../models/recentActivityModel.js");
 
 // Helper to calculate hours worked
 function calculateHours(clockIn, clockOut) {
@@ -83,6 +86,9 @@ const clockIn = async (req, res) => {
     const company = await Company.findById(companyId);
     if (!company) return res.status(404).json({ error: "Invalid companyId" });
 
+     const user = await Employee.findOne({_id:userId, createdBy:companyId});
+    if (!user) return res.status(404).json({ error: "User Not Found." });
+
     const now = new Date();
     const todayISO = now.toISOString().split("T")[0];
     const startOfDay = new Date(todayISO + "T00:00:00.000Z");
@@ -115,6 +121,26 @@ const clockIn = async (req, res) => {
     }
 
     await attendance.save();
+
+     await recentActivity.create({title:`Login Successfully.`, createdBy:userId, createdByRole:"Employee", companyId:company?._id});
+    
+           await sendNotification({
+           createdBy: userId,
+         
+           userId: company?.admins[0],
+         
+           userModel: "Employee", // "Admin" or "Employee"
+         
+           companyId: companyId,
+         
+           message: `Good Morning Login By ${user?.fullName}`,
+         
+           type: "attendance",
+         
+           referenceId: attendance._id
+         });
+
+    
     res.json({ message: "Clocked in successfully", attendance });
   } catch (err) {
     console.error(err);
@@ -131,6 +157,10 @@ const clockOut = async (req, res) => {
 
     const company = await Company.findById(companyId);
     if (!company) return res.status(404).json({ error: "Invalid companyId" });
+
+      const user = await Employee.findOne({_id:userId, createdBy:companyId});
+    if (!user) return res.status(404).json({ error: "User Not Found." });
+
 
     const now = new Date();
     const todayISO = now.toISOString().split("T")[0];
@@ -164,6 +194,25 @@ const clockOut = async (req, res) => {
     attendance.status = status;
 
     await attendance.save();
+
+
+     await recentActivity.create({title:`Login Successfully.`, createdBy:userId, createdByRole:"Employee", companyId:company?._id});
+    
+           await sendNotification({
+           createdBy: userId,
+         
+           userId: company?.admins[0],
+         
+           userModel: "Employee", // "Admin" or "Employee"
+         
+           companyId: companyId,
+         
+           message: `Good Evening Logout By ${user?.fullName}`,
+         
+           type: "attendance",
+         
+           referenceId: attendance._id
+         });
     res.json({ message: "Clocked out successfully", attendance });
   } catch (err) {
     console.error(err);

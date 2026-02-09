@@ -134,8 +134,23 @@ const createSubTask = async (req, res) => {
       { new: true }
     );
 
-     await sendNotification(subtask.employeeId, `New Sub task assigned: ${subtask.name}`, "task", subtask._id);
-  
+ await sendNotification({
+  companyId: companyId,
+
+  userId: employeeId, // 👈 jis employee ko notification dikhani hai
+
+  userModel: createdByRole === "Admin" ? "Employee" : "Admin",
+
+  message: `New task assigned: ${task.name}`,
+
+  type: "task",
+
+  referenceId: task._id,
+
+  createdBy: createdBy
+});
+
+    
 
     res.status(201).json({
       success: true,
@@ -351,6 +366,7 @@ const getSubTaskById = async (req, res) => {
 const subTaskStatusChange = async (req, res) => {
   try {
     const { companyId, subTaskId, userId, status } = req.body;
+    console.log(req.body)
     const company = await Company.findOne({ _id: companyId })
     if (!company) return res.status(404).json({ message: "Company Not Found." });
 
@@ -368,7 +384,24 @@ const subTaskStatusChange = async (req, res) => {
     await subtask.save();
 
       if(subtask?.status==="completed"){
-         await recentActivity.create({title:"Task Completed.", createdBy:user?._id, createdByRole:user?.role==="admin"?"Admin":"Employee", companyId:companyId})
+         await recentActivity.create({title:"Task Completed.", createdBy:user?._id, createdByRole:user?.role==="admin"?"Admin":"Employee", companyId:companyId});
+         await sendNotification({
+  companyId: companyId,
+  createdBy: user?.createdBy,
+  userId:
+    user?.role === "admin"
+      ? subtask?.employeeId
+      : user?.createdBy,
+
+  userModel: user?.role === "admin" ? "Employee" : "Admin",
+
+  message: `Task Completed: ${subtask.name}`,
+
+  type: "task",
+
+  referenceId: subtask._id
+});
+
           }
 
     res.json({

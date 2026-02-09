@@ -58,6 +58,15 @@ export const submitClockOut = async (id: string, companyId) => {
   return res;
 };
 
+
+export const loginUser = async (email, password) => {
+  const res = await axios.post(
+    `${import.meta.env.VITE_API_URL}/api/auth/login`, {email : email, password : password}
+  );
+
+  return res;
+};
+
 export const getSingleUser = async (id, companyId) => {
   const res = await axios.get(
     `${import.meta.env.VITE_API_URL}/api/auth/getbyid`,{params : {userId : id, companyId : companyId}}

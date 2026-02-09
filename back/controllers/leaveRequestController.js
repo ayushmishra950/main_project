@@ -3,6 +3,9 @@ const { LeaveRequest } = require("../models/leaveRequestModel");
 const { Leave } = require("../models/leaveModel");
 const Company = require("../models/companyModel");
 const recentActivity = require("../models/recentActivityModel.js");
+const {sendNotification } = require("../socketHelpers");
+const { Employee } = require("../models/employeeModel");
+const { Admin } = require("../models/authModel.js");
 
 /**
  * APPLY LEAVE (Employee)
@@ -45,6 +48,9 @@ const applyLeave = async (req, res) => {
       });
     }
 
+    const user = await Employee.findOne({_id:userId, createdBy:companyId});
+    if(!user) return res.status(404).json({message:"User Not Found."})
+
     const start = new Date(fromDate);
     const end = new Date(toDate);
 
@@ -85,7 +91,23 @@ const applyLeave = async (req, res) => {
       createdBy: companyId, // ✅ company saved here
     });
 
-     await recentActivity.create({title:`${leaveRequest?.leaveType} applied.`, createdBy:userId, createdByRole:"Employee", companyId:companyId})
+     await recentActivity.create({title:`${leaveRequest?.leaveType} applied.`, createdBy:userId, createdByRole:"Employee", companyId:companyId});
+
+       await sendNotification({
+       createdBy: userId,
+     
+       userId: companyExists?.admins[0],
+     
+       userModel: "Employee", // "Admin" or "Employee"
+     
+       companyId: companyId,
+     
+       message: `New leave applied by ${user?.fullName}`,
+     
+       type: "leave",
+     
+       referenceId: leaveRequest._id
+     });
     return res.status(201).json({
       success: true,
       message: "Leave applied successfully",
@@ -224,6 +246,9 @@ const updateLeaveStatus = async (req, res) => {
   try {
     const { status, requestId, companyId, userId } = req.body;
 
+    const admin = await Admin.findOne({_id:userId, companyId});
+    if(!admin) return res.status(404).json({message:"Admin Not Found."})
+
     if (
       !mongoose.Types.ObjectId.isValid(requestId) ||
       !mongoose.Types.ObjectId.isValid(companyId)
@@ -256,6 +281,22 @@ const updateLeaveStatus = async (req, res) => {
 
     leaveRequest.status = status;
     await leaveRequest.save();
+
+     await sendNotification({
+       createdBy: userId,
+     
+       userId: leaveRequest?.user,
+     
+       userModel: "Admin", // "Admin" or "Employee"
+     
+       companyId: companyId,
+     
+       message: `Leave Approved by Admin ${admin?.username}`,
+     
+       type: "leave",
+     
+       referenceId: leaveRequest._id
+     });
 
     await recentActivity.create({title:`leave ${status}`, createdBy:userId, createdByRole:"Admin", companyId:companyId})
 

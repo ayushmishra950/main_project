@@ -166,6 +166,7 @@ const deleteAdmin = async (req, res) => {
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(req.body)
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
@@ -192,6 +193,7 @@ const loginAdmin = async (req, res) => {
         .select("+password");
       if (user) role = user?.role || "employee";
     }
+    console.log(user)
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email" });
@@ -204,6 +206,7 @@ const loginAdmin = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
     }
+     console.log(isMatch)
 
     /**
      * 4️⃣ Token generate
@@ -219,6 +222,7 @@ const loginAdmin = async (req, res) => {
      */
     const userData = user.toObject();
     delete userData.password;
+      console.log(userData)
 
     return res.status(200).json({
       message: "Login successful",
@@ -828,7 +832,7 @@ const getNotificationData = async(req,res) =>{
       role = user?.role || "Employee";
     }
    
-    const notification = await Notification.find({companyId, userId});
+    const notification = await Notification.find({companyId, userId}).populate("createdBy");
 
     res.status(200).json({notification, success:true, message:"successfully."})
 
@@ -851,5 +855,6 @@ module.exports = {
   updateUser,
   changePassword,
   getDashboardSummary,
-  analyticsReport
+  analyticsReport,
+  getNotificationData
 };

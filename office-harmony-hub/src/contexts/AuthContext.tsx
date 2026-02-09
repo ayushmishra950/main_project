@@ -85,7 +85,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User, UserRole } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-
+import {loginUser} from "@/services/Service";
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, role?: UserRole) => Promise<void>; // role optional
@@ -109,27 +109,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // role parameter ko ignore karenge lekin signature match ho jaaye
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await loginUser(email, password);
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const data = await res.json();
+  
       if (res.status === 200) {
         toast({
           title: "Login Successfully.",
-          description: `${data?.message}`,
+          description: `${res?.data?.message}`,
         });
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-      }
+        localStorage.setItem('token', res?.data.token);
+        localStorage.setItem('user', JSON.stringify(res?.data.user));
+        setUser(res?.data.user);
+    }
+    else{
+      toast({
+        title: "Error",
+        description: res?.data?.message || "Something went wrong",
+        variant: "destructive",
+      });
+    }
     } catch (error: any) {
       console.log(error);
       toast({

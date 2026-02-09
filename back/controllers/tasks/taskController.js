@@ -175,14 +175,22 @@ const createTask = async (req, res) => {
     );
 
 // ✅ Send notification
-    await sendNotification(
-      task.managerId,      // userId
-      createdByRole,        // userModel: "Admin" or "Employee"
-      companyId,           // companyId
-      `New task assigned: ${task.name}`, // message
-      "task",              // type
-      task._id             // referenceId
-    );
+  await sendNotification({
+  createdBy: createdBy,
+
+  userId: managerId,
+
+  userModel: createdByRole, // "Admin" or "Employee"
+
+  companyId: companyId,
+
+  message: `New task assigned: ${task.name}`,
+
+  type: "task",
+
+  referenceId: task._id
+});
+
     res.status(201).json({
       success: true,
       message: "Task created successfully",
@@ -473,7 +481,33 @@ const taskStatusChange = async (req, res) => {
       await task.save();
 
        if(task?.status==="completed"){
-     await recentActivity.create({title:"Task Completed.", createdBy:user?._id, createdByRole:role==="admin"?"Admin":"Employee", companyId:companyId})
+     await recentActivity.create({title:"Task Completed.", createdBy:user?._id, createdByRole:role==="admin"?"Admin":"Employee", companyId:companyId});
+  await sendNotification({
+  companyId,
+
+  // 🔔 receiver (jis user ko notification dikhani hai)
+  userId:
+    user?.role === "admin"
+      ? task?.managerId
+      : task?.createdBy,
+
+  // 👤 receiver ka model
+  userModel:
+    user?.role === "admin"
+      ? "Employee"
+      : "Admin",
+
+  message: `Task Completed: ${task?.name}`,
+
+  type: "task",
+
+  referenceId: task?._id,
+
+  // ✍️ actor (jisne action kiya)
+  createdBy: user?._id
+});
+
+
       }
 
       return res.status(200).json({
@@ -504,7 +538,31 @@ const taskStatusChange = async (req, res) => {
       subTask.status = status;
       await subTask.save();
       if(subTask?.status==="completed"){
-     await recentActivity.create({title:"Task Completed.", createdBy:user?._id, createdByRole:"Employee", companyId:companyId})
+     await recentActivity.create({title:"Task Completed.", createdBy:user?._id, createdByRole:"Employee", companyId:companyId});
+     await sendNotification({
+  companyId: companyId,
+  // 🔔 jis user ko notification dikhani hai
+  userId:
+    user?.role === "admin"
+      ? subTask?.employeeId
+      : subTask?.createdBy,
+
+  // 👤 receiver ka model
+  userModel:
+    user?.role === "admin"
+      ? "Employee"
+      : "Admin",
+
+  message: `Task Completed: ${task.name}`,
+
+  type: "task",
+
+  referenceId: task._id,
+
+  // ✍️ jisne action kiya
+  createdBy: user?._id
+});
+
       }
 
       return res.status(200).json({
