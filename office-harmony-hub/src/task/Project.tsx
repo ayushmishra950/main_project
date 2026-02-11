@@ -86,7 +86,7 @@ const filteredProjects = projects.filter((t) => {
     }
     catch (err) {
       console.log(err);
-      toast({ title: "Error", description: err.response.data.message });
+      // toast({ title: "Error", description: err.response.data.message });
     }
   };
   useEffect(() => {
