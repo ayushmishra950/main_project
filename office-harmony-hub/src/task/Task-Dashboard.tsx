@@ -205,28 +205,45 @@ const TaskDashboard: React.FC = () => {
       </TableHeader>
 
       <TableBody>
-        {userData?.recentProjects?.slice(0, 5).map((project) => (
-          <TableRow key={project._id} className="hover:bg-gray-50 transition-colors">
-            <TableCell className={user?.taskRole === "none" ? "font-medium px-8 py-6" : "font-medium px-4 py-3"}>
-              {project.name}
-            </TableCell>
-            <TableCell className={user?.taskRole === "none" ? "px-8 py-6" : "px-4 py-3"}>
-              {project?.adminId?.username || project?.createdBy?.username || project?.createdBy?.fullName}
-            </TableCell>
-            <TableCell className={user?.taskRole === "none" ? "px-8 py-6" : "px-4 py-3"}>
-              <Badge className={getStatusColor(project.status)} variant="outline">
-                {project.status}
-              </Badge>
-            </TableCell>
-            {user?.taskRole === "none" && (
-              <TableCell className="px-8 py-6">{formatDate(project.startDate)}</TableCell>
-            )}
-            <TableCell className={user?.taskRole === "none" ? "text-right px-8 py-6" : "text-right px-4 py-3"}>
-              {formatDate(project.endDate)}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
+  {userData?.recentProjects?.length > 0 ? (
+    userData.recentProjects.slice(0, 5).map((project) => (
+      <TableRow key={project._id} className="hover:bg-gray-50 transition-colors">
+        <TableCell className={user?.taskRole === "none" ? "font-medium px-8 py-6" : "font-medium px-4 py-3"}>
+          {project.name}
+        </TableCell>
+
+        <TableCell className={user?.taskRole === "none" ? "px-8 py-6" : "px-4 py-3"}>
+          {project?.adminId?.username || project?.createdBy?.username || project?.createdBy?.fullName}
+        </TableCell>
+
+        <TableCell className={user?.taskRole === "none" ? "px-8 py-6" : "px-4 py-3"}>
+          <Badge className={getStatusColor(project.status)} variant="outline">
+            {project.status}
+          </Badge>
+        </TableCell>
+
+        {user?.taskRole === "none" && (
+          <TableCell className="px-8 py-6">
+            {formatDate(project.startDate)}
+          </TableCell>
+        )}
+
+        <TableCell className={user?.taskRole === "none" ? "text-right px-8 py-6" : "text-right px-4 py-3"}>
+          {formatDate(project.endDate)}
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell
+        colSpan={user?.taskRole === "none" ? 5 : 4}
+        className="text-center py-10 text-muted-foreground font-medium"
+      >
+       Data Not Found
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
     </Table>
   </CardContent>
 </Card>
@@ -283,7 +300,7 @@ const TaskDashboard: React.FC = () => {
                       </div>
                     </div>
                   // ))
-                ) : userData?.length === 0?(
+                ) : userData?.recentTasks?.length === 0?(
                   <div>Data Not Found.</div>
                 ):null}
               </div>
