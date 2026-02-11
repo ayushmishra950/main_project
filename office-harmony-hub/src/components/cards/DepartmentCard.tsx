@@ -112,12 +112,12 @@ const DepartmentCard = ({ departmentData, employees, onClose, departmentList }) 
               <p className="font-medium">{emp.fullName}</p>
               <p className="text-sm text-muted-foreground">{emp.designation}</p>
             </div>
-            <button
+            {/* <button
               className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600"
               onClick={() => handleActionClick(emp)}
             >
               Action
-            </button>
+            </button> */}
           </div>
         </div>
       ))}
