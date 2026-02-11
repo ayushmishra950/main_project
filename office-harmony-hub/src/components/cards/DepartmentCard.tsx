@@ -98,28 +98,36 @@ const DepartmentCard = ({ departmentData, employees, onClose, departmentList }) 
         </div>
 
         {/* Employee List with scroll if height > 400px */}
-        <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
-          {employees.map((emp) => (
-            <div
-              key={emp._id}
-              className="flex items-center gap-3 p-2 rounded hover:bg-gray-100 transition"
-            >
-              <User className="w-5 h-5 text-gray-500" />
-              <div className="flex items-center justify-between w-full">
-                <div>
-                  <p className="font-medium">{emp.fullName}</p>
-                  <p className="text-sm text-muted-foreground">{emp.designation}</p>
-                </div>
-                <button
-                  className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600"
-                  onClick={() => handleActionClick(emp)}
-                >
-                  Action
-                </button>
-              </div>
+         <div className="p-4 max-h-[400px] overflow-y-auto">
+  {employees && employees.length > 0 ? (
+    <div className="space-y-3">
+      {employees.map((emp) => (
+        <div
+          key={emp._id}
+          className="flex items-center gap-3 p-2 rounded hover:bg-gray-100 transition"
+        >
+          <User className="w-5 h-5 text-gray-500" />
+          <div className="flex items-center justify-between w-full">
+            <div>
+              <p className="font-medium">{emp.fullName}</p>
+              <p className="text-sm text-muted-foreground">{emp.designation}</p>
             </div>
-          ))}
+            <button
+              className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600"
+              onClick={() => handleActionClick(emp)}
+            >
+              Action
+            </button>
+          </div>
         </div>
+      ))}
+    </div>
+  ) : (
+    <div className="flex justify-center items-center h-32 text-muted-foreground font-medium">
+     Employees Not Found
+    </div>
+  )}
+</div>
 
         {/* Action Card Popup */}
         {showActionCard && selectedEmployee && (
