@@ -184,38 +184,44 @@ const Dashboard: React.FC = () => {
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Tasks */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderKanban className="w-5 h-5 text-primary" />
-                Recent {user?.role === "super_admin" ? "Projects" : "Tasks"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {dashboardData?.recentTasks?.slice(0, 5)?.map((task) => (
-                  <div
-                    key={task._id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(task.status)}
-                      <div>
-                        <div className="flex justify-between items-center">
-                          <p className="font-medium text-sm">{task.name}</p>
-                          <p className="text-sm md:ml-6 text-muted-foreground">
-                            Assigned To: {task?.managerId?.fullName || task?.employeeId?.fullName || task?.adminId?.username} {/* replace with the actual variable */}
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Due: {formatDate(task.endDate)}</p>
-                      </div>
-                    </div>
-                    {getPriorityBadge(task.priority)}
-                  </div>
-                ))}
+           <Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <FolderKanban className="w-5 h-5 text-primary" />
+      Recent {user?.role === "super_admin" ? "Projects" : "Tasks"}
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    {dashboardData?.recentTasks?.length > 0 ? (
+      <div className="space-y-4">
+        {dashboardData.recentTasks.slice(0, 5).map((task) => (
+          <div
+            key={task._id}
+            className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              {getStatusIcon(task.status)}
+              <div>
+                <div className="flex justify-between items-center">
+                  <p className="font-medium text-sm">{task.name}</p>
+                  <p className="text-sm md:ml-6 text-muted-foreground">
+                    Assigned To: {task?.managerId?.fullName || task?.employeeId?.fullName || task?.adminId?.username}
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground">Due: {formatDate(task.endDate)}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            {getPriorityBadge(task.priority)}
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="flex justify-center items-center h-32 text-muted-foreground font-medium">
+       {user?.role === "super_admin" ? "Projects" : "Tasks"} Not Found
+      </div>
+    )}
+  </CardContent>
+</Card>
 
           {/* Recent Activity */}
           <Card>
