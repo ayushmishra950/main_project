@@ -116,7 +116,7 @@ const filteredTasks = taskList.filter((t) => {
     }
     catch (err) {
       console.log(err);
-      toast({ title: "Error", description: err.response.data.message, variant: "destructive" })
+      // toast({ title: "Error", description: err.response.data.message, variant: "destructive" })
     }
   }
 
